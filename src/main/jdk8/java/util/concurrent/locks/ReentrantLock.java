@@ -129,12 +129,14 @@ public class ReentrantLock implements Lock, java.io.Serializable {
         final boolean nonfairTryAcquire(int acquires) {
             final Thread current = Thread.currentThread();
             int c = getState();
+            // 重试，看是否可以获取锁
             if (c == 0) {
                 if (compareAndSetState(0, acquires)) {
                     setExclusiveOwnerThread(current);
                     return true;
                 }
             }
+            // 重入
             else if (current == getExclusiveOwnerThread()) {
                 int nextc = c + acquires;
                 if (nextc < 0) // overflow
@@ -146,6 +148,7 @@ public class ReentrantLock implements Lock, java.io.Serializable {
         }
 
         protected final boolean tryRelease(int releases) {
+            // 重入--
             int c = getState() - releases;
             if (Thread.currentThread() != getExclusiveOwnerThread())
                 throw new IllegalMonitorStateException();
@@ -203,7 +206,10 @@ public class ReentrantLock implements Lock, java.io.Serializable {
          * acquire on failure.
          */
         final void lock() {
+            // cas实现原子性（乐观锁）
+            // 预期值和内存偏移量指定的state的值比较，一致便更新为1状态，不一致为false
             if (compareAndSetState(0, 1))
+                // exclusiveOwnerThread设置为当前线程
                 setExclusiveOwnerThread(Thread.currentThread());
             else
                 acquire(1);

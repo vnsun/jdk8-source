@@ -599,6 +599,8 @@ public abstract class AbstractQueuedSynchronizer
     /**
      * Creates and enqueues node for current thread and given mode.
      *
+     *  创建
+     *
      * @param mode Node.EXCLUSIVE for exclusive, Node.SHARED for shared
      * @return the new node
      */
